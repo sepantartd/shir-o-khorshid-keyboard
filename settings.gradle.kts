@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Shir o Khorshid Keyboard"
+rootProject.name = "ShiroKhorshid"
 include(":app")
