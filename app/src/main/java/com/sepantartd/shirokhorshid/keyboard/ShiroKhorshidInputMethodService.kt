@@ -5,8 +5,10 @@ import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.graphics.Color
 import android.inputmethodservice.InputMethodService
+import android.media.AudioManager
 import android.net.Uri
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +24,7 @@ import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import com.sepantartd.shirokhorshid.R
 import com.sepantartd.shirokhorshid.emoji.StickerHelper
+import com.sepantartd.shirokhorshid.settings.SettingsManager
 
 class ShiroKhorshidInputMethodService : InputMethodService() {
 
@@ -30,6 +33,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private var isShifted: Boolean = false
     private var activeEmojiCategory: Int = 0 // 0: Lion & Sun, 1: Smileys, 2: Animals, 3: Food
     private lateinit var rowsContainer: LinearLayout
+    private lateinit var settingsManager: SettingsManager
+    private lateinit var audioManager: AudioManager
 
     private val persianRow1 = listOf("ض", "ص", "ث", "ق", "ف", "غ", "ع", "ه", "خ", "ح", "ج", "چ")
     private val persianRow2 = listOf("ش", "س", "ی", "ب", "ل", "ا", "ت", "ن", "م", "ک", "گ")
@@ -50,6 +55,12 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private val animalEmojis = listOf("🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🐤", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🐛", "🦋")
     private val foodEmojis = listOf("🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶", "🌽", "🥕", "🧄", "🧅", "🥔", "🍠")
 
+    override fun onCreate() {
+        super.onCreate()
+        settingsManager = SettingsManager(this)
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+    }
+
     override fun onCreateInputView(): View {
         val root = layoutInflater.inflate(R.layout.keyboard_view, null)
         rowsContainer = root.findViewById(R.id.layoutRowsContainer)
@@ -68,16 +79,31 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         }
     }
 
+    private fun triggerKeyPressFeedback(view: View, effectType: Int = AudioManager.FX_KEYPRESS_STANDARD) {
+        if (settingsManager.isHapticEnabled) {
+            view.performHapticFeedback(HapticFeedbackConstants.KEYPRESS)
+        }
+        if (settingsManager.isSoundEnabled) {
+            audioManager.playSoundEffect(effectType)
+        }
+    }
+
     private fun renderPersianLayout() {
         addRowOfKeys(persianRow1)
         addRowOfKeys(persianRow2)
         
         val row3Layout = createRowLayout()
-        row3Layout.addView(createSpecialButton("؟") { commitText("؟") })
+        row3Layout.addView(createSpecialButton("؟") { view ->
+            triggerKeyPressFeedback(view)
+            commitText("؟")
+        })
         for (key in persianRow3) {
             row3Layout.addView(createKeyButton(key))
         }
-        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { handleDelete() })
+        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_DELETE)
+            handleDelete()
+        })
         rowsContainer.addView(row3Layout)
 
         renderBottomRow("EN", "?۱۲۳")
@@ -93,14 +119,18 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
 
         val row3Layout = createRowLayout()
         val shiftLabel = if (isShifted) "⇪" else "⇧"
-        row3Layout.addView(createSpecialButton(shiftLabel, weight = 1.5f) {
+        row3Layout.addView(createSpecialButton(shiftLabel, weight = 1.5f) { view ->
+            triggerKeyPressFeedback(view)
             isShifted = !isShifted
             renderKeyboard()
         })
         for (key in row3) {
             row3Layout.addView(createKeyButton(key))
         }
-        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { handleDelete() })
+        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_DELETE)
+            handleDelete()
+        })
         rowsContainer.addView(row3Layout)
 
         renderBottomRow("FA", "?123")
@@ -114,7 +144,10 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         for (key in numberRow3) {
             row3Layout.addView(createKeyButton(key))
         }
-        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { handleDelete() })
+        row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_DELETE)
+            handleDelete()
+        })
         rowsContainer.addView(row3Layout)
 
         val returnLabel = if (previousMode == KeyboardMode.ENGLISH) "ABC" else "فارسی"
@@ -124,7 +157,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private fun renderBottomRow(langToggleLabel: String, modeToggleLabel: String) {
         val bottomRow = createRowLayout()
 
-        bottomRow.addView(createSpecialButton(modeToggleLabel, weight = 1.4f) {
+        bottomRow.addView(createSpecialButton(modeToggleLabel, weight = 1.4f) { view ->
+            triggerKeyPressFeedback(view)
             currentMode = if (currentMode == KeyboardMode.NUMBERS) {
                 if (previousMode == KeyboardMode.EMOJI) KeyboardMode.PERSIAN else previousMode
             } else {
@@ -134,7 +168,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             renderKeyboard()
         })
 
-        bottomRow.addView(createSpecialButton(langToggleLabel, weight = 1.2f) {
+        bottomRow.addView(createSpecialButton(langToggleLabel, weight = 1.2f) { view ->
+            triggerKeyPressFeedback(view)
             currentMode = if (currentMode == KeyboardMode.ENGLISH) {
                 KeyboardMode.PERSIAN
             } else {
@@ -144,21 +179,25 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             renderKeyboard()
         })
 
-        bottomRow.addView(createSpecialButton("😊", weight = 1.2f) {
+        bottomRow.addView(createSpecialButton("😊", weight = 1.2f) { view ->
+            triggerKeyPressFeedback(view)
             previousMode = currentMode
             currentMode = KeyboardMode.EMOJI
             renderKeyboard()
         })
 
-        bottomRow.addView(createSpecialButton("فاصله", weight = 3.5f) {
+        bottomRow.addView(createSpecialButton("فاصله", weight = 3.5f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_SPACEBAR)
             commitText(" ")
         })
 
-        bottomRow.addView(createSpecialButton(".", weight = 1f) {
+        bottomRow.addView(createSpecialButton(".", weight = 1f) { view ->
+            triggerKeyPressFeedback(view)
             commitText(".")
         })
 
-        bottomRow.addView(createSpecialButton("↵", weight = 1.4f, bgColor = "#1A73E8", textColor = "#FFFFFF") {
+        bottomRow.addView(createSpecialButton("↵", weight = 1.4f, bgColor = "#1A73E8", textColor = "#FFFFFF") { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_RETURN)
             handleEnter()
         })
 
@@ -203,14 +242,17 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         }
 
         val emojiBottomRow = createRowLayout()
-        emojiBottomRow.addView(createSpecialButton("🔤 کیبورد", weight = 2f) {
+        emojiBottomRow.addView(createSpecialButton("🔤 کیبورد", weight = 2f) { view ->
+            triggerKeyPressFeedback(view)
             currentMode = if (previousMode == KeyboardMode.EMOJI) KeyboardMode.PERSIAN else previousMode
             renderKeyboard()
         })
-        emojiBottomRow.addView(createSpecialButton("فاصله", weight = 3f) {
+        emojiBottomRow.addView(createSpecialButton("فاصله", weight = 3f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_SPACEBAR)
             commitText(" ")
         })
-        emojiBottomRow.addView(createSpecialButton("⌫", weight = 1.5f) {
+        emojiBottomRow.addView(createSpecialButton("⌫", weight = 1.5f) { view ->
+            triggerKeyPressFeedback(view, AudioManager.FX_KEYPRESS_DELETE)
             handleDelete()
         })
         rowsContainer.addView(emojiBottomRow)
@@ -230,7 +272,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         val params = LinearLayout.LayoutParams(160, 160)
         stickerButton.layoutParams = params
 
-        stickerButton.setOnClickListener {
+        stickerButton.setOnClickListener { view ->
+            triggerKeyPressFeedback(view)
             onLionAndSunStickerClicked()
         }
 
@@ -278,7 +321,6 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             }
         }
 
-        // Fallback: Copy to Clipboard if commitContent fails or is not supported by target app
         copyStickerToClipboard(uri)
     }
 
@@ -326,7 +368,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         params.setMargins(2, 2, 2, 2)
         btn.layoutParams = params
 
-        btn.setOnClickListener {
+        btn.setOnClickListener { view ->
+            triggerKeyPressFeedback(view)
             commitText(emoji)
         }
         return btn
@@ -354,7 +397,10 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         params.setMargins(4, 4, 4, 4)
         btn.layoutParams = params
 
-        btn.setOnClickListener { onClick() }
+        btn.setOnClickListener { view ->
+            triggerKeyPressFeedback(view)
+            onClick()
+        }
         return btn
     }
 
@@ -396,7 +442,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         params.setMargins(2, 2, 2, 2)
         btn.layoutParams = params
 
-        btn.setOnClickListener {
+        btn.setOnClickListener { view ->
+            triggerKeyPressFeedback(view)
             commitText(text)
             if (isShifted && currentMode == KeyboardMode.ENGLISH) {
                 isShifted = false
@@ -411,7 +458,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         weight: Float = 1.0f,
         bgColor: String = "#475569",
         textColor: String = "#F8FAFC",
-        onClick: () -> Unit
+        onClick: (View) -> Unit
     ): Button {
         val btn = Button(this)
         btn.text = text
@@ -429,7 +476,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         params.setMargins(2, 2, 2, 2)
         btn.layoutParams = params
 
-        btn.setOnClickListener { onClick() }
+        btn.setOnClickListener { view -> onClick(view) }
         return btn
     }
 
