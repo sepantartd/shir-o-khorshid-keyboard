@@ -1,7 +1,5 @@
 package com.sepantartd.shirokhorshid.keyboard
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
@@ -10,17 +8,11 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.GridLayout
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.sepantartd.shirokhorshid.R
 
 class ShiroKhorshidInputMethodService : InputMethodService() {
@@ -77,7 +69,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            setPadding(8, 12, 8, 12)
+            setPadding(4, 8, 4, 8)
         }
 
         emojiLayout = createEmojiPanel()
@@ -89,37 +81,39 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private fun showMode(mode: Mode) {
         currentMode = mode
         mainContainer.removeAllViews()
-
-        when (mode) {
-            Mode.TEXT -> {
-                renderTextLayout()
-                mainContainer.addView(keyboardLayout)
+        try {
+            when (mode) {
+                Mode.TEXT -> {
+                    renderTextLayout()
+                    mainContainer.addView(keyboardLayout)
+                }
+                Mode.SYMBOLS -> {
+                    renderSymbolLayout()
+                    mainContainer.addView(keyboardLayout)
+                }
+                Mode.EMOJI -> {
+                    mainContainer.addView(emojiLayout)
+                }
+                Mode.STICKERS -> {
+                    mainContainer.addView(stickerLayout)
+                }
             }
-            Mode.SYMBOLS -> {
-                renderSymbolLayout()
-                mainContainer.addView(keyboardLayout)
-            }
-            Mode.EMOJI -> {
-                mainContainer.addView(emojiLayout)
-            }
-            Mode.STICKERS -> {
-                mainContainer.addView(stickerLayout)
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     private fun renderTextLayout() {
         keyboardLayout.removeAllViews()
-
         val keys = if (isPersian) getPersianKeys() else getEnglishKeys()
+        
         for (row in keys) {
             val rowLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                    120
                 )
-                weightSum = row.size.toFloat()
             }
 
             for (key in row) {
@@ -128,22 +122,20 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             }
             keyboardLayout.addView(rowLayout)
         }
-
         keyboardLayout.addView(createBottomRow())
     }
 
     private fun renderSymbolLayout() {
         keyboardLayout.removeAllViews()
-
         val symbolKeys = if (isSymPage1) getSymbolKeysPage1() else getSymbolKeysPage2()
+        
         for (row in symbolKeys) {
             val rowLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                    120
                 )
-                weightSum = row.size.toFloat()
             }
 
             for (key in row) {
@@ -152,7 +144,6 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             }
             keyboardLayout.addView(rowLayout)
         }
-
         keyboardLayout.addView(createSymbolBottomRow())
     }
 
@@ -161,17 +152,18 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
 
         return Button(this).apply {
             text = displayLabel
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#334155"))
             
             val params = LinearLayout.LayoutParams(
                 0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 1f
             )
-            params.setMargins(4, 6, 4, 6)
+            params.setMargins(3, 3, 3, 3)
             layoutParams = params
+            setPadding(0, 0, 0, 0)
 
             setOnClickListener {
                 playKeyClick()
@@ -185,74 +177,27 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                120
             )
 
-            val btnSym = Button(context).apply {
-                text = "?123"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#0F172A"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    showMode(Mode.SYMBOLS)
-                }
+            val btnSym = createActionCustomButton("?123", 1.5f, Color.parseColor("#0F172A")) {
+                showMode(Mode.SYMBOLS)
             }
-
-            val btnLang = Button(context).apply {
-                text = if (isPersian) "FA" else "EN"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#0F172A"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    isPersian = !isPersian
-                    renderTextLayout()
-                }
+            val btnLang = createActionCustomButton(if (isPersian) "FA" else "EN", 1f, Color.parseColor("#0F172A")) {
+                isPersian = !isPersian
+                renderTextLayout()
             }
-
-            val btnEmoji = Button(context).apply {
-                text = "😊"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#0F172A"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    showMode(Mode.EMOJI)
-                }
+            val btnEmoji = createActionCustomButton("😊", 1f, Color.parseColor("#0F172A")) {
+                showMode(Mode.EMOJI)
             }
-
-            val btnSpace = Button(context).apply {
-                text = if (isPersian) "فاصله" else "Space"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#475569"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 4f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    commitText(" ")
-                }
+            val btnSpace = createActionCustomButton(if (isPersian) "فاصله" else "Space", 4f, Color.parseColor("#475569")) {
+                commitText(" ")
             }
-
-            val btnDel = Button(context).apply {
-                text = "⌫"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#DC2626"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    handleDelete()
-                }
+            val btnDel = createActionCustomButton("⌫", 1.5f, Color.parseColor("#DC2626")) {
+                handleDelete()
             }
-
-            val btnEnter = Button(context).apply {
-                text = "↵"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#2563EB"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    handleEnter()
-                }
+            val btnEnter = createActionCustomButton("↵", 1.5f, Color.parseColor("#2563EB")) {
+                handleEnter()
             }
 
             addView(btnSym)
@@ -269,52 +214,21 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                120
             )
 
-            val btnABC = Button(context).apply {
-                text = "ABC"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#0F172A"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    showMode(Mode.TEXT)
-                }
+            val btnABC = createActionCustomButton("ABC", 2f, Color.parseColor("#0F172A")) {
+                showMode(Mode.TEXT)
             }
-
-            val btnPage = Button(context).apply {
-                text = if (isSymPage1) "1/2" else "2/2"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#0F172A"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    isSymPage1 = !isSymPage1
-                    renderSymbolLayout()
-                }
+            val btnPage = createActionCustomButton(if (isSymPage1) "1/2" else "2/2", 2f, Color.parseColor("#0F172A")) {
+                isSymPage1 = !isSymPage1
+                renderSymbolLayout()
             }
-
-            val btnSpace = Button(context).apply {
-                text = "Space"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#475569"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 4f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    commitText(" ")
-                }
+            val btnSpace = createActionCustomButton("Space", 4f, Color.parseColor("#475569")) {
+                commitText(" ")
             }
-
-            val btnDel = Button(context).apply {
-                text = "⌫"
-                setTextColor(Color.WHITE)
-                setBackgroundColor(Color.parseColor("#DC2626"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f).apply { setMargins(4, 6, 4, 6) }
-                setOnClickListener {
-                    playKeyClick()
-                    handleDelete()
-                }
+            val btnDel = createActionCustomButton("⌫", 2f, Color.parseColor("#DC2626")) {
+                handleDelete()
             }
 
             addView(btnABC)
@@ -324,12 +238,33 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         }
     }
 
+    private fun createActionCustomButton(label: String, weight: Float, bgColor: Int, onClick: () -> Unit): Button {
+        return Button(this).apply {
+            text = label
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(bgColor)
+            val params = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                weight
+            )
+            params.setMargins(3, 3, 3, 3)
+            layoutParams = params
+            setPadding(0, 0, 0, 0)
+            setOnClickListener {
+                playKeyClick()
+                onClick()
+            }
+        }
+    }
+
     private fun createEmojiPanel(): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                600
+                550
             )
             setBackgroundColor(Color.parseColor("#0F172A"))
 
@@ -374,8 +309,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             for (emoji in emojis) {
                 val tv = TextView(context).apply {
                     text = emoji
-                    textSize = 24f
-                    setPadding(16, 16, 16, 16)
+                    textSize = 22f
+                    setPadding(12, 12, 12, 12)
                     setOnClickListener {
                         playKeyClick()
                         commitText(emoji)
@@ -383,7 +318,6 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
                 }
                 grid.addView(tv)
             }
-
             addView(grid)
         }
     }
@@ -393,7 +327,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                600
+                550
             )
             setBackgroundColor(Color.parseColor("#0F172A"))
 
@@ -409,10 +343,10 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             addView(btnBack)
 
             val infoText = TextView(context).apply {
-                text = "بخش استیکرهای نمادین شیر و خورشید"
+                text = "بخش استیکرهای نمادین شیر و خورشید فعال است"
                 setTextColor(Color.LTGRAY)
-                textSize = 16f
-                setPadding(32, 32, 32, 32)
+                textSize = 15f
+                setPadding(24, 24, 24, 24)
             }
             addView(infoText)
         }
@@ -430,7 +364,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     }
 
     private fun commitText(text: String) {
-        currentInputConnection?.commitText(text, 1)
+        val ic = currentInputConnection
+        ic?.commitText(text, 1)
     }
 
     private fun handleDelete() {
@@ -449,21 +384,21 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
     }
 
-    fun playKeyClick() {
-        audioManager?.playSoundEffect(AudioManager.FX_KEY_CLICK)
-        performHapticFeedback()
-    }
-
-    private fun performHapticFeedback() {
-        vibrator?.let {
-            if (it.hasVibrator()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    it.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    it.vibrate(20)
+    private fun playKeyClick() {
+        try {
+            audioManager?.playSoundEffect(AudioManager.FX_KEY_CLICK)
+            vibrator?.let {
+                if (it.hasVibrator()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        it.vibrate(VibrationEffect.createOneShot(15, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        it.vibrate(15)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -498,4 +433,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             listOf("°", "\\", "©", "®", "™", "℅", "<", ">", "⌫")
         )
     }
+}
+
+private fun CharSequence?.isNullOrEmpty(): Boolean {
+    return this == null || this.isEmpty()
 }
