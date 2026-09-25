@@ -3,6 +3,7 @@ package com.sepantartd.shirokhorshid.keyboard
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
@@ -36,6 +37,17 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private lateinit var settingsManager: SettingsManager
     private lateinit var audioManager: AudioManager
 
+    // Theme Colors
+    private var isDarkTheme: Boolean = true
+    private var keyboardBgColor: String = "#1E293B"
+    private var keyBgColor: String = "#334155"
+    private var specialKeyBgColor: String = "#475569"
+    private var keyTextColor: String = "#F8FAFC"
+    private var specialTextColor: String = "#F8FAFC"
+    private var subtextColor: String = "#94A3B8"
+    private var tabSelectedBg: String = "#1A73E8"
+    private var tabUnselectedBg: String = "#334155"
+
     private val persianRow1 = listOf("ض", "ص", "ث", "ق", "ف", "غ", "ع", "ه", "خ", "ح", "ج", "چ")
     private val persianRow2 = listOf("ش", "س", "ی", "ب", "ل", "ا", "ت", "ن", "م", "ک", "گ")
     private val persianRow3 = listOf("ظ", "ط", "ز", "ر", "ذ", "د", "پ", "و", "ژ")
@@ -68,7 +80,40 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         return root
     }
 
+    private fun updateThemeColors() {
+        isDarkTheme = when (settingsManager.themeMode) {
+            SettingsManager.THEME_DARK -> true
+            SettingsManager.THEME_LIGHT -> false
+            else -> {
+                val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
+
+        if (isDarkTheme) {
+            keyboardBgColor = "#1E293B"
+            keyBgColor = "#334155"
+            specialKeyBgColor = "#475569"
+            keyTextColor = "#F8FAFC"
+            specialTextColor = "#F8FAFC"
+            subtextColor = "#94A3B8"
+            tabSelectedBg = "#1A73E8"
+            tabUnselectedBg = "#334155"
+        } else {
+            keyboardBgColor = "#E2E8F0"
+            keyBgColor = "#FFFFFF"
+            specialKeyBgColor = "#CBD5E1"
+            keyTextColor = "#0F172A"
+            specialTextColor = "#0F172A"
+            subtextColor = "#475569"
+            tabSelectedBg = "#1A73E8"
+            tabUnselectedBg = "#CBD5E1"
+        }
+    }
+
     private fun renderKeyboard() {
+        updateThemeColors()
+        rowsContainer.setBackgroundColor(Color.parseColor(keyboardBgColor))
         rowsContainer.removeAllViews()
 
         when (currentMode) {
@@ -91,7 +136,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private fun renderPersianLayout() {
         addRowOfKeys(persianRow1)
         addRowOfKeys(persianRow2)
-        
+
         val row3Layout = createRowLayout()
         row3Layout.addView(createSpecialButton("؟") { view ->
             triggerKeyPressFeedback(view)
@@ -279,7 +324,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
 
         val tvLabel = TextView(this)
         tvLabel.text = "استیکر شیر و خورشید (برای ارسال لمس کنید)"
-        tvLabel.setTextColor(Color.parseColor("#CBD5E1"))
+        tvLabel.setTextColor(Color.parseColor(subtextColor))
         tvLabel.textSize = 12f
         tvLabel.gravity = Gravity.CENTER
         tvLabel.setPadding(0, 8, 0, 0)
@@ -384,10 +429,10 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
 
         if (isSelected) {
             btn.setTextColor(Color.parseColor("#FFFFFF"))
-            btn.setBackgroundColor(Color.parseColor("#1A73E8"))
+            btn.setBackgroundColor(Color.parseColor(tabSelectedBg))
         } else {
-            btn.setTextColor(Color.parseColor("#94A3B8"))
-            btn.setBackgroundColor(Color.parseColor("#334155"))
+            btn.setTextColor(Color.parseColor(subtextColor))
+            btn.setBackgroundColor(Color.parseColor(tabUnselectedBg))
         }
 
         val params = LinearLayout.LayoutParams(
@@ -429,8 +474,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         val btn = Button(this)
         btn.text = text
         btn.textSize = 16f
-        btn.setTextColor(Color.parseColor("#F8FAFC"))
-        btn.setBackgroundColor(Color.parseColor("#334155"))
+        btn.setTextColor(Color.parseColor(keyTextColor))
+        btn.setBackgroundColor(Color.parseColor(keyBgColor))
         btn.isAllCaps = false
         btn.setPadding(0, 0, 0, 0)
 
@@ -456,8 +501,8 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private fun createSpecialButton(
         text: String,
         weight: Float = 1.0f,
-        bgColor: String = "#475569",
-        textColor: String = "#F8FAFC",
+        bgColor: String = specialKeyBgColor,
+        textColor: String = specialTextColor,
         onClick: (View) -> Unit
     ): Button {
         val btn = Button(this)
