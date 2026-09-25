@@ -1,8 +1,11 @@
 package com.sepantartd.shirokhorshid.keyboard
 
+import android.content.ClipData
 import android.content.ClipDescription
+import android.content.ClipboardManager
 import android.graphics.Color
 import android.inputmethodservice.InputMethodService
+import android.net.Uri
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -262,22 +265,35 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             }
         }
 
-        if (!isSupported) {
-            Toast.makeText(this, "برنامه مقصد از دریافت تصویر Rich Content پشتیبانی نمی‌کند", Toast.LENGTH_SHORT).show()
-            return
+        if (isSupported) {
+            val inputContentInfo = InputContentInfoCompat(
+                uri,
+                ClipDescription("شیر و خورشید", arrayOf("image/png")),
+                null
+            )
+            val flags = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+            val success = InputConnectionCompat.commitContent(ic, editorInfo, inputContentInfo, flags, null)
+            if (success) {
+                return
+            }
         }
 
-        val inputContentInfo = InputContentInfoCompat(
-            uri,
-            ClipDescription("شیر و خورشید", arrayOf("image/png")),
-            null
-        )
+        // Fallback: Copy to Clipboard if commitContent fails or is not supported by target app
+        copyStickerToClipboard(uri)
+    }
 
-        val flags = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
-
-        val success = InputConnectionCompat.commitContent(ic, editorInfo, inputContentInfo, flags, null)
-        if (!success) {
-            Toast.makeText(this, "ارسال استیکر با خطا مواجه شد", Toast.LENGTH_SHORT).show()
+    private fun copyStickerToClipboard(uri: Uri) {
+        try {
+            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newUri(contentResolver, "شیر و خورشید", uri)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(
+                this,
+                "برنامه مقصد پشتیبانی نمی‌کند؛ تصویر در حافظه کپی شد (آماده Paste)",
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "امکان ارسال یا کپی تصویر در این برنامه وجود ندارد", Toast.LENGTH_SHORT).show()
         }
     }
 
