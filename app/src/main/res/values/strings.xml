@@ -7,4 +7,6 @@
     <string name="step_2_title">۲. انتخاب کیبورد پیش‌فرض</string>
     <string name="btn_select_keyboard">تغییر کیبورد فعال</string>
     <string name="privacy_notice">این برنامه کاملاً آفلاین بوده و هیچ اطلاعاتی را از دستگاه شما جمع‌آوری یا منتقل نمی‌کند.</string>
+    <string name="subtype_fa">فارسی</string>
+    <string name="subtype_en">English</string>
 </resources>
