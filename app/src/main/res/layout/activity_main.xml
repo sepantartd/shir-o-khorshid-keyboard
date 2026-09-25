@@ -102,7 +102,44 @@
             android:text="@string/setting_sound_title"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_theme_title"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/rbThemeSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/theme_system"
+                android:textColor="@color/text_primary" />
+
+            <RadioButton
+                android:id="@+id/rbThemeDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/theme_dark"
+                android:textColor="@color/text_primary" />
+
+            <RadioButton
+                android:id="@+id/rbThemeLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/theme_light"
+                android:textColor="@color/text_primary" />
+        </RadioGroup>
 
         <View
             android:layout_width="match_parent"
@@ -140,4 +177,3 @@
 
     </LinearLayout>
 </ScrollView>
-            
