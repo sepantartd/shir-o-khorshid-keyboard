@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.sepantartd.shirokhorshid.settings.SettingsManager
@@ -23,6 +25,10 @@ class MainActivity : AppCompatActivity() {
         val btnSelectKeyboard = findViewById<Button>(R.id.btnSelectKeyboard)
         val switchHaptic = findViewById<SwitchMaterial>(R.id.switchHaptic)
         val switchSound = findViewById<SwitchMaterial>(R.id.switchSound)
+        val rgTheme = findViewById<RadioGroup>(R.id.rgTheme)
+        val rbThemeSystem = findViewById<RadioButton>(R.id.rbThemeSystem)
+        val rbThemeDark = findViewById<RadioButton>(R.id.rbThemeDark)
+        val rbThemeLight = findViewById<RadioButton>(R.id.rbThemeLight)
 
         btnEnableKeyboard.setOnClickListener {
             val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
@@ -43,6 +49,20 @@ class MainActivity : AppCompatActivity() {
 
         switchSound.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.isSoundEnabled = isChecked
+        }
+
+        when (settingsManager.themeMode) {
+            SettingsManager.THEME_DARK -> rbThemeDark.isChecked = true
+            SettingsManager.THEME_LIGHT -> rbThemeLight.isChecked = true
+            else -> rbThemeSystem.isChecked = true
+        }
+
+        rgTheme.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbThemeDark -> settingsManager.themeMode = SettingsManager.THEME_DARK
+                R.id.rbThemeLight -> settingsManager.themeMode = SettingsManager.THEME_LIGHT
+                else -> settingsManager.themeMode = SettingsManager.THEME_SYSTEM
+            }
         }
     }
 }
