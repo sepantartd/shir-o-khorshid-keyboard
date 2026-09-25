@@ -8,8 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import com.sepantartd.shirokhorshid.R
 
 class ShiroKhorshidInputMethodService : InputMethodService() {
@@ -158,7 +161,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         val categoryBarScrollView = HorizontalScrollView(this)
         val categoryBar = LinearLayout(this)
         categoryBar.orientation = LinearLayout.HORIZONTAL
-        categoryBar.paddingBar()
+        categoryBar.setPadding(4, 4, 4, 4)
 
         val cat0 = createTabButton("🦁 شیر و خورشید", activeEmojiCategory == 0) {
             activeEmojiCategory = 0
@@ -206,27 +209,38 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     }
 
     private fun renderLionAndSunEmojiCategory() {
-        val noticeContainer = LinearLayout(this)
-        noticeContainer.orientation = LinearLayout.VERTICAL
-        noticeContainer.gravity = Gravity.CENTER
-        noticeContainer.setPadding(16, 24, 16, 24)
+        val container = LinearLayout(this)
+        container.orientation = LinearLayout.VERTICAL
+        container.gravity = Gravity.CENTER
+        container.setPadding(16, 16, 16, 16)
 
-        val tvTitle = TextView(this)
-        tvTitle.text = "استیکر اختصاصی شیر و خورشید"
-        tvTitle.setTextColor(Color.parseColor("#F59E0B"))
-        tvTitle.textSize = 16f
-        tvTitle.gravity = Gravity.CENTER
+        val stickerButton = ImageButton(this)
+        stickerButton.setImageResource(R.drawable.ic_lion_and_sun)
+        stickerButton.scaleType = ImageView.ScaleType.FIT_CENTER
+        stickerButton.setBackgroundColor(Color.TRANSPARENT)
 
-        val tvSubtitle = TextView(this)
-        tvSubtitle.text = "(در مرحله بعد فایل گرافیکی وکتور آن اضافه می‌شود)"
-        tvSubtitle.setTextColor(Color.parseColor("#94A3B8"))
-        tvSubtitle.textSize = 12f
-        tvSubtitle.gravity = Gravity.CENTER
-        tvSubtitle.setPadding(0, 8, 0, 0)
+        val params = LinearLayout.LayoutParams(160, 160)
+        stickerButton.layoutParams = params
 
-        noticeContainer.addView(tvTitle)
-        noticeContainer.addView(tvSubtitle)
-        rowsContainer.addView(noticeContainer)
+        stickerButton.setOnClickListener {
+            onLionAndSunStickerClicked()
+        }
+
+        val tvLabel = TextView(this)
+        tvLabel.text = "استیکر شیر و خورشید (برای ارسال لمس کنید)"
+        tvLabel.setTextColor(Color.parseColor("#CBD5E1"))
+        tvLabel.textSize = 12f
+        tvLabel.gravity = Gravity.CENTER
+        tvLabel.setPadding(0, 8, 0, 0)
+
+        container.addView(stickerButton)
+        container.addView(tvLabel)
+        rowsContainer.addView(container)
+    }
+
+    private fun onLionAndSunStickerClicked() {
+        // در مراحل بعدی با FileProvider و commitContent جایگزین می‌شود
+        Toast.makeText(this, "ارسال تصویر شیر و خورشید (در مرحله بعد پیاده‌سازی می‌شود)", Toast.LENGTH_SHORT).show()
     }
 
     private fun renderEmojiGrid(emojis: List<String>) {
@@ -384,9 +398,5 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         val ic = currentInputConnection ?: return
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
-    }
-
-    private fun LinearLayout.paddingBar() {
-        this.setPadding(4, 4, 4, 4)
     }
 }
