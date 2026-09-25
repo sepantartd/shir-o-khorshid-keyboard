@@ -1,19 +1,23 @@
 package com.sepantartd.shirokhorshid.keyboard
 
-import android.inputmethodservice.InputMethodService
 import android.graphics.Color
+import android.inputmethodservice.InputMethodService
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.sepantartd.shirokhorshid.R
 
 class ShiroKhorshidInputMethodService : InputMethodService() {
 
     private var currentMode: KeyboardMode = KeyboardMode.PERSIAN
+    private var previousMode: KeyboardMode = KeyboardMode.PERSIAN
     private var isShifted: Boolean = false
+    private var activeEmojiCategory: Int = 0 // 0: Lion & Sun, 1: Smileys, 2: Animals, 3: Food
     private lateinit var rowsContainer: LinearLayout
 
     private val persianRow1 = listOf("ض", "ص", "ث", "ق", "ف", "غ", "ع", "ه", "خ", "ح", "ج", "چ")
@@ -31,6 +35,10 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     private val numberRow2 = listOf("@", "#", "$", "%", "&", "-", "+", "(", ")")
     private val numberRow3 = listOf("*", "\"", "'", ":", ";", "!", "?", "،")
 
+    private val smileyEmojis = listOf("😀", "😃", "😄", "😁", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🤩", "🥳")
+    private val animalEmojis = listOf("🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🐤", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🐛", "🦋")
+    private val foodEmojis = listOf("🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶", "🌽", "🥕", "🧄", "🧅", "🥔", "🍠")
+
     override fun onCreateInputView(): View {
         val root = layoutInflater.inflate(R.layout.keyboard_view, null)
         rowsContainer = root.findViewById(R.id.layoutRowsContainer)
@@ -45,6 +53,7 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             KeyboardMode.PERSIAN -> renderPersianLayout()
             KeyboardMode.ENGLISH -> renderEnglishLayout()
             KeyboardMode.NUMBERS -> renderNumbersLayout()
+            KeyboardMode.EMOJI -> renderEmojiLayout()
         }
     }
 
@@ -97,17 +106,18 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         row3Layout.addView(createSpecialButton("⌫", weight = 1.5f) { handleDelete() })
         rowsContainer.addView(row3Layout)
 
-        val returnLabel = if (currentMode == KeyboardMode.ENGLISH) "ABC" else "فارسی"
+        val returnLabel = if (previousMode == KeyboardMode.ENGLISH) "ABC" else "فارسی"
         renderBottomRow(langToggleLabel = "FA/EN", modeToggleLabel = returnLabel)
     }
 
     private fun renderBottomRow(langToggleLabel: String, modeToggleLabel: String) {
         val bottomRow = createRowLayout()
 
-        bottomRow.addView(createSpecialButton(modeToggleLabel, weight = 1.5f) {
+        bottomRow.addView(createSpecialButton(modeToggleLabel, weight = 1.4f) {
             currentMode = if (currentMode == KeyboardMode.NUMBERS) {
-                KeyboardMode.PERSIAN
+                if (previousMode == KeyboardMode.EMOJI) KeyboardMode.PERSIAN else previousMode
             } else {
+                previousMode = currentMode
                 KeyboardMode.NUMBERS
             }
             renderKeyboard()
@@ -123,7 +133,13 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             renderKeyboard()
         })
 
-        bottomRow.addView(createSpecialButton("فاصله", weight = 4f) {
+        bottomRow.addView(createSpecialButton("😊", weight = 1.2f) {
+            previousMode = currentMode
+            currentMode = KeyboardMode.EMOJI
+            renderKeyboard()
+        })
+
+        bottomRow.addView(createSpecialButton("فاصله", weight = 3.5f) {
             commitText(" ")
         })
 
@@ -131,11 +147,147 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
             commitText(".")
         })
 
-        bottomRow.addView(createSpecialButton("↵", weight = 1.5f, bgColor = "#1A73E8", textColor = "#FFFFFF") {
+        bottomRow.addView(createSpecialButton("↵", weight = 1.4f, bgColor = "#1A73E8", textColor = "#FFFFFF") {
             handleEnter()
         })
 
         rowsContainer.addView(bottomRow)
+    }
+
+    private fun renderEmojiLayout() {
+        val categoryBarScrollView = HorizontalScrollView(this)
+        val categoryBar = LinearLayout(this)
+        categoryBar.orientation = LinearLayout.HORIZONTAL
+        categoryBar.paddingBar()
+
+        val cat0 = createTabButton("🦁 شیر و خورشید", activeEmojiCategory == 0) {
+            activeEmojiCategory = 0
+            renderKeyboard()
+        }
+        val cat1 = createTabButton("😀 شکلک‌ها", activeEmojiCategory == 1) {
+            activeEmojiCategory = 1
+            renderKeyboard()
+        }
+        val cat2 = createTabButton("🐱 حیوانات", activeEmojiCategory == 2) {
+            activeEmojiCategory = 2
+            renderKeyboard()
+        }
+        val cat3 = createTabButton("🍕 خوراکی‌ها", activeEmojiCategory == 3) {
+            activeEmojiCategory = 3
+            renderKeyboard()
+        }
+
+        categoryBar.addView(cat0)
+        categoryBar.addView(cat1)
+        categoryBar.addView(cat2)
+        categoryBar.addView(cat3)
+        categoryBarScrollView.addView(categoryBar)
+        rowsContainer.addView(categoryBarScrollView)
+
+        when (activeEmojiCategory) {
+            0 -> renderLionAndSunEmojiCategory()
+            1 -> renderEmojiGrid(smileyEmojis)
+            2 -> renderEmojiGrid(animalEmojis)
+            3 -> renderEmojiGrid(foodEmojis)
+        }
+
+        val emojiBottomRow = createRowLayout()
+        emojiBottomRow.addView(createSpecialButton("🔤 کیبورد", weight = 2f) {
+            currentMode = if (previousMode == KeyboardMode.EMOJI) KeyboardMode.PERSIAN else previousMode
+            renderKeyboard()
+        })
+        emojiBottomRow.addView(createSpecialButton("فاصله", weight = 3f) {
+            commitText(" ")
+        })
+        emojiBottomRow.addView(createSpecialButton("⌫", weight = 1.5f) {
+            handleDelete()
+        })
+        rowsContainer.addView(emojiBottomRow)
+    }
+
+    private fun renderLionAndSunEmojiCategory() {
+        val noticeContainer = LinearLayout(this)
+        noticeContainer.orientation = LinearLayout.VERTICAL
+        noticeContainer.gravity = Gravity.CENTER
+        noticeContainer.setPadding(16, 24, 16, 24)
+
+        val tvTitle = TextView(this)
+        tvTitle.text = "استیکر اختصاصی شیر و خورشید"
+        tvTitle.setTextColor(Color.parseColor("#F59E0B"))
+        tvTitle.textSize = 16f
+        tvTitle.gravity = Gravity.CENTER
+
+        val tvSubtitle = TextView(this)
+        tvSubtitle.text = "(در مرحله بعد فایل گرافیکی وکتور آن اضافه می‌شود)"
+        tvSubtitle.setTextColor(Color.parseColor("#94A3B8"))
+        tvSubtitle.textSize = 12f
+        tvSubtitle.gravity = Gravity.CENTER
+        tvSubtitle.setPadding(0, 8, 0, 0)
+
+        noticeContainer.addView(tvTitle)
+        noticeContainer.addView(tvSubtitle)
+        rowsContainer.addView(noticeContainer)
+    }
+
+    private fun renderEmojiGrid(emojis: List<String>) {
+        val itemsPerRow = 6
+        var currentRow: LinearLayout? = null
+
+        for ((index, emoji) in emojis.withIndex()) {
+            if (index % itemsPerRow == 0) {
+                currentRow = createRowLayout()
+                rowsContainer.addView(currentRow)
+            }
+            val btn = createEmojiButton(emoji)
+            currentRow?.addView(btn)
+        }
+    }
+
+    private fun createEmojiButton(emoji: String): Button {
+        val btn = Button(this)
+        btn.text = emoji
+        btn.textSize = 20f
+        btn.setBackgroundColor(Color.TRANSPARENT)
+        btn.setPadding(0, 0, 0, 0)
+
+        val params = LinearLayout.LayoutParams(
+            0,
+            120,
+            1.0f
+        )
+        params.setMargins(2, 2, 2, 2)
+        btn.layoutParams = params
+
+        btn.setOnClickListener {
+            commitText(emoji)
+        }
+        return btn
+    }
+
+    private fun createTabButton(title: String, isSelected: Boolean, onClick: () -> Unit): Button {
+        val btn = Button(this)
+        btn.text = title
+        btn.textSize = 13f
+        btn.isAllCaps = false
+        btn.setPadding(24, 0, 24, 0)
+
+        if (isSelected) {
+            btn.setTextColor(Color.parseColor("#FFFFFF"))
+            btn.setBackgroundColor(Color.parseColor("#1A73E8"))
+        } else {
+            btn.setTextColor(Color.parseColor("#94A3B8"))
+            btn.setBackgroundColor(Color.parseColor("#334155"))
+        }
+
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            110
+        )
+        params.setMargins(4, 4, 4, 4)
+        btn.layoutParams = params
+
+        btn.setOnClickListener { onClick() }
+        return btn
     }
 
     private fun addRowOfKeys(keys: List<String>) {
@@ -232,5 +384,9 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
         val ic = currentInputConnection ?: return
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+    }
+
+    private fun LinearLayout.paddingBar() {
+        this.setPadding(4, 4, 4, 4)
     }
 }
