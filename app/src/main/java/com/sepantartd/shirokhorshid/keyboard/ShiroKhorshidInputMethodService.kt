@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.sepantartd.shirokhorshid.R
+import com.sepantartd.shirokhorshid.emoji.StickerHelper
 
 class ShiroKhorshidInputMethodService : InputMethodService() {
 
@@ -239,8 +240,12 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     }
 
     private fun onLionAndSunStickerClicked() {
-        // در مراحل بعدی با FileProvider و commitContent جایگزین می‌شود
-        Toast.makeText(this, "ارسال تصویر شیر و خورشید (در مرحله بعد پیاده‌سازی می‌شود)", Toast.LENGTH_SHORT).show()
+        val uri = StickerHelper.getLionAndSunStickerUri(this)
+        if (uri != null) {
+            Toast.makeText(this, "فایل استیکر آماده شد: $uri", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "خطا در ساخت تصویر استیکر", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun renderEmojiGrid(emojis: List<String>) {
