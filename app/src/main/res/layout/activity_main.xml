@@ -19,7 +19,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
-            android:layout_marginTop="32dp" />
+            android:layout_marginTop="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -34,8 +34,8 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#E2E8F0"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_enable_keyboard"
             android:padding="12dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="20dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -69,7 +69,64 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_select_keyboard"
             android:padding="12dp"
-            android:layout_marginBottom="32dp" />
+            android:layout_marginBottom="24dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E2E8F0"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchHaptic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_haptic_title"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:layout_marginBottom="12dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchSound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_sound_title"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E2E8F0"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_description"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="24dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -83,4 +140,4 @@
 
     </LinearLayout>
 </ScrollView>
-          
+            
