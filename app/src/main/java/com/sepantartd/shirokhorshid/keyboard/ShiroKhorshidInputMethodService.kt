@@ -1,5 +1,6 @@
 package com.sepantartd.shirokhorshid.keyboard
 
+import android.content.ClipDescription
 import android.graphics.Color
 import android.inputmethodservice.InputMethodService
 import android.view.Gravity
@@ -13,6 +14,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputContentInfoCompat
 import com.sepantartd.shirokhorshid.R
 import com.sepantartd.shirokhorshid.emoji.StickerHelper
 
@@ -240,11 +244,40 @@ class ShiroKhorshidInputMethodService : InputMethodService() {
     }
 
     private fun onLionAndSunStickerClicked() {
-        val uri = StickerHelper.getLionAndSunStickerUri(this)
-        if (uri != null) {
-            Toast.makeText(this, "فایل استیکر آماده شد: $uri", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "خطا در ساخت تصویر استیکر", Toast.LENGTH_SHORT).show()
+        val ic = currentInputConnection ?: return
+        val editorInfo = currentInputEditorInfo ?: return
+        val uri = StickerHelper.getLionAndSunStickerUri(this) ?: run {
+            Toast.makeText(this, "خطا در ایجاد فایل استیکر", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val mimeTypes = EditorInfoCompat.getContentMimeTypes(editorInfo)
+        var isSupported = false
+        for (type in mimeTypes) {
+            if (ClipDescription.compareMimeTypes(type, "image/png") ||
+                ClipDescription.compareMimeTypes(type, "image/*") ||
+                ClipDescription.compareMimeTypes(type, "*/*")) {
+                isSupported = true
+                break
+            }
+        }
+
+        if (!isSupported) {
+            Toast.makeText(this, "برنامه مقصد از دریافت تصویر Rich Content پشتیبانی نمی‌کند", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val inputContentInfo = InputContentInfoCompat(
+            uri,
+            ClipDescription("شیر و خورشید", arrayOf("image/png")),
+            null
+        )
+
+        val flags = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+
+        val success = InputConnectionCompat.commitContent(ic, editorInfo, inputContentInfo, flags, null)
+        if (!success) {
+            Toast.makeText(this, "ارسال استیکر با خطا مواجه شد", Toast.LENGTH_SHORT).show()
         }
     }
 
