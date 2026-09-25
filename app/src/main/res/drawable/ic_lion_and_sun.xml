@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="256dp"
+    android:height="256dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+
+    <!-- پس‌زمینه پرچم سه رنگ ایران -->
+    <path
+        android:pathData="M 28 32 L 228 32 A 20 20 0 0 1 248 52 L 248 90 L 8 90 L 8 52 A 20 20 0 0 1 28 32 Z"
+        android:fillColor="#239F40" />
+
+    <path
+        android:pathData="M 8 90 L 248 90 L 248 166 L 8 166 Z"
+        android:fillColor="#FFFFFF" />
+
+    <path
+        android:pathData="M 8 166 L 248 166 L 248 204 A 20 20 0 0 1 228 224 L 28 224 A 20 20 0 0 1 8 204 Z"
+        android:fillColor="#DA0000" />
+
+    <!-- شعاع‌های خورشید -->
+    <path
+        android:pathData="M 128 65 L 128 45 M 105 72 L 91 58 M 151 72 L 165 58 M 86 90 L 68 84 M 170 90 L 188 84 M 76 112 L 58 112 M 180 112 L 198 112"
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+
+    <!-- قرص خورشید -->
+    <path
+        android:pathData="M 92 115 A 36 36 0 0 1 164 115 Z"
+        android:fillColor="#FBBF24"
+        android:strokeColor="#D97706"
+        android:strokeWidth="2" />
+
+    <!-- بدن شیر -->
+    <path
+        android:pathData="M 100 162 C 100 145 112 135 125 135 C 135 135 145 140 152 148 C 160 148 172 152 176 160 C 180 168 178 180 172 186 C 165 190 145 190 120 190 C 105 190 100 175 100 162 Z"
+        android:fillColor="#D97706" />
+
+    <!-- یال و سر شیر -->
+    <path
+        android:pathData="M 108 142 C 102 135 100 120 112 112 C 122 105 136 110 138 122 C 142 120 148 124 146 132 C 142 142 130 148 120 148 Z"
+        android:fillColor="#B45309" />
+
+    <!-- دست و پاها -->
+    <path
+        android:pathData="M 108 180 L 108 196 M 122 182 L 122 196 M 154 182 L 154 196 M 168 180 L 168 196"
+        android:strokeColor="#92400E"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+
+    <!-- دم شیر -->
+    <path
+        android:pathData="M 174 172 Q 195 165 192 142 C 190 132 182 128 184 122"
+        android:strokeColor="#B45309"
+        android:strokeWidth="4"
+        android:fillColor="@android:color/transparent"
+        android:strokeLineCap="round" />
+
+    <!-- شمشیر شیر -->
+    <path
+        android:pathData="M 104 148 L 70 118"
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+
+    <!-- دسته و قبضه شمشیر -->
+    <path
+        android:pathData="M 102 152 L 108 144 M 100 150 L 96 154"
+        android:strokeColor="#78350F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+
+</vector>
