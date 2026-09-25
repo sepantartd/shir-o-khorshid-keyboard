@@ -9,6 +9,10 @@
     <string name="settings_title">تنظیمات کیبورد</string>
     <string name="setting_haptic_title">لرزش هنگام لمس (Haptic Feedback)</string>
     <string name="setting_sound_title">صدای کلیدها (Sound Feedback)</string>
+    <string name="setting_theme_title">پوسته کیبورد (Theme)</string>
+    <string name="theme_system">هماهنگ با سیستم (System)</string>
+    <string name="theme_dark">تاریک (Dark Mode)</string>
+    <string name="theme_light">روشن (Light Mode)</string>
     <string name="about_title">درباره کیبورد</string>
     <string name="about_description">کیبورد شیر و خورشید یک پروژه آزاد و حریم‌خصوصی‌محور است که امکان استفاده از ایموجی سفارشی پرچم شیر و خورشید ایران را فراهم می‌کند.</string>
     <string name="privacy_notice">این برنامه کاملاً آفلاین بوده و هیچ اطلاعاتی را از دستگاه شما جمع‌آوری یا منتقل نمی‌کند.</string>
