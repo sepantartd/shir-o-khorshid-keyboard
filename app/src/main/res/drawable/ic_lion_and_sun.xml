@@ -54,7 +54,7 @@
         android:pathData="M 174 172 Q 195 165 192 142 C 190 132 182 128 184 122"
         android:strokeColor="#B45309"
         android:strokeWidth="4"
-        android:fillColor="@android:color/transparent"
+        android:fillColor="#00000000"
         android:strokeLineCap="round" />
 
     <!-- شمشیر شیر -->
