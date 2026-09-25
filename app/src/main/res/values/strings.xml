@@ -6,6 +6,11 @@
     <string name="btn_enable_keyboard">ورود به تنظیمات کیبورد اندروید</string>
     <string name="step_2_title">۲. انتخاب کیبورد پیش‌فرض</string>
     <string name="btn_select_keyboard">تغییر کیبورد فعال</string>
+    <string name="settings_title">تنظیمات کیبورد</string>
+    <string name="setting_haptic_title">لرزش هنگام لمس (Haptic Feedback)</string>
+    <string name="setting_sound_title">صدای کلیدها (Sound Feedback)</string>
+    <string name="about_title">درباره کیبورد</string>
+    <string name="about_description">کیبورد شیر و خورشید یک پروژه آزاد و حریم‌خصوصی‌محور است که امکان استفاده از ایموجی سفارشی پرچم شیر و خورشید ایران را فراهم می‌کند.</string>
     <string name="privacy_notice">این برنامه کاملاً آفلاین بوده و هیچ اطلاعاتی را از دستگاه شما جمع‌آوری یا منتقل نمی‌کند.</string>
     <string name="subtype_fa">فارسی</string>
     <string name="subtype_en">English</string>
