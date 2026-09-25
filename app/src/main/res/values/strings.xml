@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Shir o Khorshid Keyboard</string>
+    <string name="welcome_title">کیبورد شیر و خورشید</string>
+    <string name="welcome_subtitle">کیبورد فارسی و انگلیسی امن و کاملاً آفلاین</string>
+    <string name="step_1_title">۱. فعال‌سازی کیبورد</string>
+    <string name="btn_enable_keyboard">ورود به تنظیمات کیبورد اندروید</string>
+    <string name="step_2_title">۲. انتخاب کیبورد پیش‌فرض</string>
+    <string name="btn_select_keyboard">تغییر کیبورد فعال</string>
+    <string name="privacy_notice">این برنامه کاملاً آفلاین بوده و هیچ اطلاعاتی را از دستگاه شما جمع‌آوری یا منتقل نمی‌کند.</string>
+</resources>
